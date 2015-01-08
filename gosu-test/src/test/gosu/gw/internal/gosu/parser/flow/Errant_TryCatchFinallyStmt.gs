@@ -13,7 +13,7 @@ class Errant_TryCatchFinallyStmt {
 
       }
     } while( true )
-  }  //## issuekeys: MSG_MISSING_RETURN
+  }  //## issuekeys: MSG_MISSING_RETURN      //Sky: not a real issue. Maybe should remove the return type from function
 
   function f0_1() : int {
     do {
