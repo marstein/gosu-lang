@@ -57,12 +57,13 @@ class Sky1 {
     var str3DArray : String[][][] = {{{"test1", "test2"}, {"test4", "test5"}},{{"test10" , "test11"},{"test12", "test13"}}}
     print(str3DArray*.length)
     print(str3DArray*.concat({{"x"},{"y"}})*.length)
-    print(str3DArray*.concat({"x"})*.length)                  // error flag in both parser
+    print(str3DArray*.concat({{"x"}})*.length)                  // error flag in both parser
     print(str3DArray*.concat({{"x"},{"y"}})*.length())        // error flag in both parser
     print(str3DArray*.concat({{"x"},{"y"}})*.toUpperCase())   // error flag in both parser
     print(str3DArray*.concat({{"x"},{"y"}})*.concat({"a"})*.toUpperCase())   //error flag in IDEParser only, not in OSGosu Parser
     print(str3DArray*.concat({{"x"},{"y"}})*.concat({"a"})*.length)          //error flag in IDEParser only, not in OSGosu Parser
     print(str3DArray*.concat({{"x"},{"y"}})*.concat({"a"})*.length())        //error flag in IDEParser only, not in OSGosu Parser
+    print(str3DArray*.toList()*.toString())
   }
 
   // Array of String
