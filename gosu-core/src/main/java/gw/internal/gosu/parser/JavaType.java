@@ -5,6 +5,7 @@
 package gw.internal.gosu.parser;
 
 import gw.config.CommonServices;
+import gw.config.ExecutionMode;
 import gw.fs.IFile;
 import gw.internal.gosu.annotations.AnnotationMap;
 import gw.lang.parser.TypeVarToTypeMap;
@@ -387,7 +388,7 @@ class JavaType extends AbstractType implements IJavaTypeInternal
              getComponentType().isAssignableFrom( type.getComponentType() );
     }
 
-    if( isArray() || type.isArray() )
+    if( isArray() )
     {
       return false;
     }
@@ -450,7 +451,7 @@ class JavaType extends AbstractType implements IJavaTypeInternal
 
   public ITypeInfo getTypeInfo()
   {
-    if( !TypeSystem.getExecutionEnvironment().isSingleModuleMode() ) {
+    if( ExecutionMode.isIDE() ) {
       // Enforce Guidwewire's legacy type shadowing rules where, for example, a
       // type in an App module such as PX shadows a type in PL having the same name.
       // This isn't kosher in general because the type in PL is the one that is
@@ -936,7 +937,9 @@ class JavaType extends AbstractType implements IJavaTypeInternal
 
       if( _classInfo.isArray() )
       {
-        _allTypesInHierarchy = new UnmodifiableArraySet<IType>(TypeLord.getArrayVersionsOfEachType(getComponentType().getAllTypesInHierarchy()));
+        Set<IType> types = TypeLord.getAllClassesInClassHierarchyAsIntrinsicTypes( _classInfo );
+        types.addAll( new HashSet<IType>( TypeLord.getArrayVersionsOfEachType( getComponentType().getAllTypesInHierarchy() ) ) );
+        _allTypesInHierarchy = new UnmodifiableArraySet<IType>( types );
       }
       else
       {

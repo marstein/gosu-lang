@@ -1921,6 +1921,7 @@ public class GosuClassParser extends ParserBase implements IGosuClassParser, ITo
       if( bSetModifiers )
       {
         verifyNoAbstractHideOverrideModifierDefined( getClassStatement(), false, modifiers.getModifiers(), Keyword.KW_final );
+        verify( getClassStatement(), !Modifier.isFinal( modifiers.getModifiers() ), Res.MSG_ILLEGAL_USE_OF_MODIFIER, Keyword.KW_final, classType.name() );
         verify( getClassStatement(), !Modifier.isTransient( modifiers.getModifiers() ), Res.MSG_ILLEGAL_USE_OF_MODIFIER, Keyword.KW_transient, classType.name() );
         gsClass.setModifierInfo(modifiers);
       }
@@ -2805,9 +2806,8 @@ public class GosuClassParser extends ParserBase implements IGosuClassParser, ITo
       {
         IType setterType = setter.getArgTypes()[0];
         IType returnType = getter.getReturnType();
-        if( !GosuObjectUtil.equals( returnType, setterType ) ||
-            !GosuObjectUtil.equals( propertySymbol.getType(), setterType ) ||
-            !GosuObjectUtil.equals( propertySymbol.getType(), setterType ) )
+        if( !setterType.isAssignableFrom( returnType ) ||
+            !setterType.isAssignableFrom( propertySymbol.getType() ) )
         {
           verify( stmt, false, Res.MSG_PROPERTIES_MUST_AGREE_ON_TYPE );
         }

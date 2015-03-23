@@ -77,15 +77,20 @@ The plugin enables you to:
 
 Build instructions
 ------------------
-You need Java JDK 1.7 and Maven 3.0 to build Gosu and the IntelliJ IDEA plugin.
-Set the following environment variables:
-
-* JAVA_HOME points to JDK 1.7's home
-* IDEA_HOME points to the root of your IntelliJ 12.1.X 's installation folder
+You need Java JDK 1.7 and Maven 3.0 to build Gosu.
+Set the JAVA_HOME environment variable to JDK 1.7's home.
 
 Clone the project from GitHub and run:
 
-    mvn process-classes
+    mvn compile
+
+If you also want to build the IntelliJ IDEA plugin, set the IDEA_HOME
+environment variable to the root of your IntelliJ 12.1.X 's
+installation folder.
+
+You can now build Gosu and the IntelliJ IDEA plugin with:
+
+    mvn compile -P ij
 
 
 Quick Install
@@ -93,15 +98,8 @@ Quick Install
 
 The Gosu Plugin for IntelliJ is the recommended way to use Gosu.
 The plugin is hosted on the IntelliJ IDEA Plugin Repository and you can download it directly from within IntelliJ IDEA.
-For complete installation instructions and important information about the IntelliJ IDEA plugins, refer to the [plugin page](http://gosu-lang.org/intellij.html "Plugin").
+For complete installation instructions and important information about the IntelliJ IDEA plugins, refer to the [downloads page](http://gosu-lang.github.io/downloads.html "Downloads").
 
-
-
-Command Line Shell
-------------------
-
-If you run the Gosu command-line tool without any arguments, Gosu an interactive shell for writing and running lines of Gosu.
-For more information, refer to the Gosu shell section in the [documentation](http://gosu-lang.org/doc/index.html "Docs").
 
 
 Support
@@ -110,7 +108,7 @@ Support
 Need help getting your project off the ground? Want to discuss features in the next release, among both users and the Gosu team? Participate in our discussion forum or report a bug:
 
 * [Forum](http://groups.google.com/group/gosu-lang "Forum")
-* [Issue tracking](https://github.com/gosu-lang/gosu/issues "Issues")
+* [Issue tracking](https://github.com/gosu-lang/gosu-lang/issues "Issues")
 
 License
 -------
