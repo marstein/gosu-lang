@@ -5,6 +5,7 @@
 package gw.internal.gosu.ir.compiler.bytecode.expression;
 
 import gw.internal.gosu.ir.compiler.bytecode.AbstractBytecodeCompiler;
+import gw.internal.gosu.ir.compiler.bytecode.BooleanResultManager;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeContext;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeCompiler;
 import gw.lang.ir.expression.IRCompositeExpression;
@@ -17,11 +18,14 @@ public class IRCompositeExpressionCompiler extends AbstractBytecodeCompiler {
     // an assignment to a non-temp variable, so it's safe to push and pop scopes during
     // their compilation
     context.pushScope();
+    BooleanResultManager bResMng = context.getBooleanResultManager();
+    bResMng.pushOwner( expression );
     try {
       for (IRElement element : expression.getElements()) {
         IRBytecodeCompiler.compileIRElement( element, context );
       }
     } finally {
+      bResMng.popOwner( expression );
       context.popScope();
     }
   }

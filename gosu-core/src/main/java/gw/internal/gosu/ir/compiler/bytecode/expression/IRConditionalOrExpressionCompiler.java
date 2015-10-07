@@ -5,11 +5,13 @@
 package gw.internal.gosu.ir.compiler.bytecode.expression;
 
 import gw.internal.gosu.ir.compiler.bytecode.AbstractBytecodeCompiler;
+import gw.internal.gosu.ir.compiler.bytecode.BooleanResultManager;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeContext;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeCompiler;
+import gw.lang.ir.ConditionContext;
+import gw.lang.ir.IRExpression;
 import gw.lang.ir.expression.IRConditionalOrExpression;
 import gw.internal.ext.org.objectweb.asm.MethodVisitor;
-import gw.internal.ext.org.objectweb.asm.Label;
 import gw.internal.ext.org.objectweb.asm.Opcodes;
 
 public class IRConditionalOrExpressionCompiler extends AbstractBytecodeCompiler {
@@ -17,17 +19,24 @@ public class IRConditionalOrExpressionCompiler extends AbstractBytecodeCompiler 
     MethodVisitor mv = context.getMv();
 
     // Push LHS
+    BooleanResultManager bResMng = context.getBooleanResultManager();
+    bResMng.maybeSetOwner( expression );
     IRBytecodeCompiler.compileIRExpression( expression.getLhs(), context );
-    Label trueLabel = new Label();
-    mv.visitJumpInsn( Opcodes.IFNE, trueLabel );
+    IRExpression rhs = expression.getRhs();
+    ConditionContext lhsCondCxt = expression.getLhs().getConditionContext();
+    mv.visitJumpInsn( lhsCondCxt.getOperator(), lhsCondCxt.generateTrueLabel() );
+    lhsCondCxt.fixLabels( false, mv );
     // Push RHS
-    IRBytecodeCompiler.compileIRExpression( expression.getRhs(), context );
-    mv.visitJumpInsn( Opcodes.IFNE, trueLabel );
-    mv.visitInsn( Opcodes.ICONST_0 );
-    Label falseLabel = new Label();
-    mv.visitJumpInsn( Opcodes.GOTO, falseLabel );
-    mv.visitLabel( trueLabel );
-    mv.visitInsn( Opcodes.ICONST_1 );
-    mv.visitLabel( falseLabel );
+    IRBytecodeCompiler.compileIRExpression( rhs, context );
+    ConditionContext rhsCondCxt = rhs.getConditionContext();
+    lhsCondCxt.mergeLabels( true, rhsCondCxt );
+    lhsCondCxt.setFalseLabels( rhsCondCxt.getLabels( false ) );
+    lhsCondCxt.setOperator( rhsCondCxt.getOperator() );
+    expression.getConditionContext().update( lhsCondCxt );
+    if( bResMng.isOwner(expression) )
+    {
+      compileConditionAssignment( expression, mv);
+      bResMng.popOwner( expression );
+    }
   }
 }

@@ -28,6 +28,7 @@ public class IRBytecodeContext {
   private Stack<Label> _continueLabels;
   private Label _lastVisitedLabel;
   private int _lastLineNumber;
+  private BooleanResultManager _booleanResultManager;
 
   public IRBytecodeContext(MethodVisitor mv) {
     _mv = mv;
@@ -38,6 +39,7 @@ public class IRBytecodeContext {
     _breakLabels = new Stack<Label>();
     _continueLabels = new Stack<Label>();
     _lastLineNumber = -1;
+    _booleanResultManager = new BooleanResultManager();
   }
 
   public MethodVisitor getMv() {
@@ -248,4 +250,8 @@ public class IRBytecodeContext {
     return lastLineNumber;
   }
 
+  public BooleanResultManager getBooleanResultManager()
+  {
+    return _booleanResultManager;
+  }
 }

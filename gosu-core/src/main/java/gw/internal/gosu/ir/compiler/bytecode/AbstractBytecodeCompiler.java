@@ -4,7 +4,8 @@
 
 package gw.internal.gosu.ir.compiler.bytecode;
 
-import gw.lang.ir.IRElement;
+import gw.lang.ir.ConditionContext;
+import gw.lang.ir.IRExpression;
 import gw.lang.ir.IRType;
 import gw.internal.ext.org.objectweb.asm.Type;
 import gw.internal.ext.org.objectweb.asm.Label;
@@ -92,4 +93,62 @@ public class AbstractBytecodeCompiler {
   public static boolean isWide( IRType type ) {
     return (type.getName().equals("long") || type.getName().equals("double") );
   }
+
+  public static void compileConditionAssignment( IRExpression expression, MethodVisitor mv)
+  {
+    Label end = new Label();
+    ConditionContext conditionContext = expression.getConditionContext();
+    mv.visitJumpInsn( negateOpcode(conditionContext.getOperator() ), conditionContext.generateFalseLabel() );
+    conditionContext.fixLabels( true, mv );
+    mv.visitInsn( Opcodes.ICONST_1 );
+    mv.visitJumpInsn( Opcodes.GOTO, end );
+    conditionContext.fixLabels( false, mv );
+    mv.visitInsn(Opcodes.ICONST_0);
+    mv.visitLabel( end );
+  }
+
+  protected static int negateOpcode( int op )
+  {
+    int ret = 0;
+    switch(op) {
+      case Opcodes.IF_ACMPEQ:
+        ret = Opcodes.IF_ACMPNE;
+        break;
+      case Opcodes.IF_ACMPNE:
+        ret = Opcodes.IF_ACMPEQ;
+        break;
+      case Opcodes.IFEQ:
+        ret = Opcodes.IFNE;
+        break;
+      case Opcodes.IFNE:
+        ret = Opcodes.IFEQ;
+        break;
+      case Opcodes.IF_ICMPEQ:
+        ret = Opcodes.IF_ICMPNE;
+        break;
+      case Opcodes.IF_ICMPNE:
+        ret = Opcodes.IF_ICMPEQ;
+        break;
+      case Opcodes.IFNULL:
+        ret = Opcodes.IFNONNULL;
+        break;
+      case Opcodes.IFNONNULL:
+        ret = Opcodes.IFNULL;
+        break;
+      case Opcodes.IFLT:
+        ret = Opcodes.IFGE;
+        break;
+      case Opcodes.IFGE:
+        ret = Opcodes.IFLT;
+        break;
+      case Opcodes.IFLE:
+        ret = Opcodes.IFGT;
+        break;
+      case Opcodes.IFGT:
+        ret = Opcodes.IFLE;
+        break;
+    }
+    return ret;
+  }
+
 }
