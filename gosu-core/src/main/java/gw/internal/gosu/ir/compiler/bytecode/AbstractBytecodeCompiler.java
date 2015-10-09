@@ -147,6 +147,18 @@ public class AbstractBytecodeCompiler {
       case Opcodes.IFGT:
         ret = Opcodes.IFLE;
         break;
+      case Opcodes.IF_ICMPLE:
+        ret = Opcodes.IF_ICMPGT;
+        break;
+      case Opcodes.IF_ICMPGT:
+        ret = Opcodes.IF_ICMPLE;
+        break;
+      case Opcodes.IF_ICMPLT:
+        ret = Opcodes.IF_ICMPGE;
+        break;
+      case Opcodes.IF_ICMPGE:
+        ret = Opcodes.IF_ICMPLT;
+        break;
     }
     return ret;
   }

@@ -5,11 +5,11 @@
 package gw.internal.gosu.ir.compiler.bytecode.expression;
 
 import gw.internal.gosu.ir.compiler.bytecode.AbstractBytecodeCompiler;
+import gw.internal.gosu.ir.compiler.bytecode.BooleanResultManager;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeContext;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeCompiler;
 import gw.lang.ir.expression.IRRelationalExpression;
 import gw.lang.ir.IRType;
-import gw.internal.ext.org.objectweb.asm.Label;
 import gw.internal.ext.org.objectweb.asm.Opcodes;
 import gw.internal.ext.org.objectweb.asm.MethodVisitor;
 
@@ -21,15 +21,16 @@ public class IRRelationalExpressionCompiler extends AbstractBytecodeCompiler {
       expression.getRhs().getType().getName());
     }
 
+    BooleanResultManager bResMng = context.getBooleanResultManager();
+    bResMng.maybeSetOwner( expression );
     IRBytecodeCompiler.compileIRExpression( expression.getLhs(), context );
     IRBytecodeCompiler.compileIRExpression( expression.getRhs(), context );
 
     MethodVisitor mv = context.getMv();
 
-    Label trueLabel = new Label();
-
     IRType type = expression.getLhs().getType();
     IRRelationalExpression.Operation op = expression.getOp();
+    int asmOpcode;
     if( type.isLong() || type.isDouble() || type.isFloat() )
     {
       mv.visitInsn( type.isDouble()
@@ -40,45 +41,45 @@ public class IRRelationalExpressionCompiler extends AbstractBytecodeCompiler {
 
       if( op == IRRelationalExpression.Operation.LTE )
       {
-        mv.visitJumpInsn( Opcodes.IFLE, trueLabel );
+        asmOpcode = Opcodes.IFLE;
       }
       else if( op == IRRelationalExpression.Operation.LT )
       {
-        mv.visitJumpInsn( Opcodes.IFLT, trueLabel );
+        asmOpcode = Opcodes.IFLT;
       }
       else if( op == IRRelationalExpression.Operation.GTE )
       {
-        mv.visitJumpInsn( Opcodes.IFGE, trueLabel );
+        asmOpcode = Opcodes.IFGE;
       }
       else
       {
-        mv.visitJumpInsn( Opcodes.IFGT, trueLabel );
+        asmOpcode = Opcodes.IFGT;
       }
     }
     else
     {
       if( op == IRRelationalExpression.Operation.LTE )
       {
-        mv.visitJumpInsn( Opcodes.IF_ICMPLE, trueLabel );
+        asmOpcode = Opcodes.IF_ICMPLE;
       }
       else if( op == IRRelationalExpression.Operation.LT )
       {
-        mv.visitJumpInsn( Opcodes.IF_ICMPLT, trueLabel );
+        asmOpcode = Opcodes.IF_ICMPLT;
       }
       else if( op == IRRelationalExpression.Operation.GTE )
       {
-        mv.visitJumpInsn( Opcodes.IF_ICMPGE, trueLabel );
+        asmOpcode = Opcodes.IF_ICMPGE;
       }
       else
       {
-        mv.visitJumpInsn( Opcodes.IF_ICMPGT, trueLabel );
+        asmOpcode = Opcodes.IF_ICMPGT;
       }
     }
-    mv.visitInsn( Opcodes.ICONST_0 );
-    Label falseLabel = new Label();
-    mv.visitJumpInsn( Opcodes.GOTO, falseLabel );
-    mv.visitLabel( trueLabel );
-    mv.visitInsn( Opcodes.ICONST_1 );
-    mv.visitLabel( falseLabel );
+    expression.getConditionContext().setOperator( asmOpcode );
+    if( bResMng.isOwner( expression) )
+    {
+      compileConditionAssignment( expression, mv );
+      bResMng.popOwner( expression );
+    }
   }
 }
