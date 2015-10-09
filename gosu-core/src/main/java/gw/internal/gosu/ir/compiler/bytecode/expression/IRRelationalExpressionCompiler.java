@@ -5,7 +5,6 @@
 package gw.internal.gosu.ir.compiler.bytecode.expression;
 
 import gw.internal.gosu.ir.compiler.bytecode.AbstractBytecodeCompiler;
-import gw.internal.gosu.ir.compiler.bytecode.BooleanResultManager;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeContext;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeCompiler;
 import gw.lang.ir.expression.IRRelationalExpression;
@@ -21,8 +20,6 @@ public class IRRelationalExpressionCompiler extends AbstractBytecodeCompiler {
       expression.getRhs().getType().getName());
     }
 
-    BooleanResultManager bResMng = context.getBooleanResultManager();
-    bResMng.maybeSetOwner( expression );
     IRBytecodeCompiler.compileIRExpression( expression.getLhs(), context );
     IRBytecodeCompiler.compileIRExpression( expression.getRhs(), context );
 
@@ -76,10 +73,9 @@ public class IRRelationalExpressionCompiler extends AbstractBytecodeCompiler {
       }
     }
     expression.getConditionContext().setOperator( asmOpcode );
-    if( bResMng.isOwner( expression) )
+    if( isNotPartOfBooleanExpr( expression ) )
     {
       compileConditionAssignment( expression, mv );
-      bResMng.popOwner( expression );
     }
   }
 }

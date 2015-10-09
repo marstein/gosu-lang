@@ -5,22 +5,18 @@
 package gw.internal.gosu.ir.compiler.bytecode.expression;
 
 import gw.internal.gosu.ir.compiler.bytecode.AbstractBytecodeCompiler;
-import gw.internal.gosu.ir.compiler.bytecode.BooleanResultManager;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeContext;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeCompiler;
 import gw.lang.ir.ConditionContext;
 import gw.lang.ir.IRExpression;
 import gw.lang.ir.expression.IRConditionalOrExpression;
 import gw.internal.ext.org.objectweb.asm.MethodVisitor;
-import gw.internal.ext.org.objectweb.asm.Opcodes;
 
 public class IRConditionalOrExpressionCompiler extends AbstractBytecodeCompiler {
   public static void compile( IRConditionalOrExpression expression, IRBytecodeContext context) {
     MethodVisitor mv = context.getMv();
 
     // Push LHS
-    BooleanResultManager bResMng = context.getBooleanResultManager();
-    bResMng.maybeSetOwner( expression );
     IRBytecodeCompiler.compileIRExpression( expression.getLhs(), context );
     IRExpression rhs = expression.getRhs();
     ConditionContext lhsCondCxt = expression.getLhs().getConditionContext();
@@ -33,10 +29,9 @@ public class IRConditionalOrExpressionCompiler extends AbstractBytecodeCompiler 
     lhsCondCxt.setFalseLabels( rhsCondCxt.getLabels( false ) );
     lhsCondCxt.setOperator( rhsCondCxt.getOperator() );
     expression.getConditionContext().update( lhsCondCxt );
-    if( bResMng.isOwner(expression) )
+    if( isNotPartOfBooleanExpr( expression ) )
     {
-      compileConditionAssignment( expression, mv);
-      bResMng.popOwner( expression );
+      compileConditionAssignment( expression, mv );
     }
   }
 }

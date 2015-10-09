@@ -5,7 +5,6 @@
 package gw.internal.gosu.ir.compiler.bytecode.expression;
 
 import gw.internal.gosu.ir.compiler.bytecode.AbstractBytecodeCompiler;
-import gw.internal.gosu.ir.compiler.bytecode.BooleanResultManager;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeContext;
 import gw.internal.gosu.ir.compiler.bytecode.IRBytecodeCompiler;
 import gw.lang.ir.expression.IREqualityExpression;
@@ -17,8 +16,6 @@ import gw.internal.ext.org.objectweb.asm.MethodVisitor;
 
 public class IREqualityExpressionCompiler extends AbstractBytecodeCompiler {
   public static void compile( IREqualityExpression expression, IRBytecodeContext context ) {
-    BooleanResultManager bResMng = context.getBooleanResultManager();
-    bResMng.maybeSetOwner( expression );
     if (expression.getLhs() instanceof IRNullLiteral || expression.getRhs() instanceof IRNullLiteral) {
       compareToNull( expression.isEquals(), expression.getLhs() instanceof IRNullLiteral ? expression.getRhs() : expression.getLhs(), context, expression );
     } else if (expression.getLhs().getType().isPrimitive()) {
@@ -93,12 +90,10 @@ public class IREqualityExpressionCompiler extends AbstractBytecodeCompiler {
   }
 
   private static void compare( MethodVisitor mv, int opcode, IRBytecodeContext context, IRExpression root ) {
-    BooleanResultManager bResMng = context.getBooleanResultManager();
     root.getConditionContext().setOperator( opcode );
-    if( bResMng.isOwner(root) )
+    if( isNotPartOfBooleanExpr( root ) )
     {
       compileConditionAssignment( root, mv );
-      bResMng.popOwner( root );
     }
   }
   

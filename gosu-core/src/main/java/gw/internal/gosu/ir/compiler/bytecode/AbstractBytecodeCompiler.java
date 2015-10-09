@@ -5,12 +5,16 @@
 package gw.internal.gosu.ir.compiler.bytecode;
 
 import gw.lang.ir.ConditionContext;
+import gw.lang.ir.IRElement;
 import gw.lang.ir.IRExpression;
 import gw.lang.ir.IRType;
 import gw.internal.ext.org.objectweb.asm.Type;
 import gw.internal.ext.org.objectweb.asm.Label;
 import gw.internal.ext.org.objectweb.asm.MethodVisitor;
 import gw.internal.ext.org.objectweb.asm.Opcodes;
+import gw.lang.ir.expression.IRConditionalAndExpression;
+import gw.lang.ir.expression.IRConditionalOrExpression;
+import gw.lang.ir.expression.IRNotExpression;
 
 public class AbstractBytecodeCompiler {
 
@@ -107,6 +111,14 @@ public class AbstractBytecodeCompiler {
     mv.visitLabel( end );
   }
 
+  public static boolean isNotPartOfBooleanExpr( IRExpression expression )
+  {
+    IRElement parent = expression.getParent();
+    return !(parent instanceof IRConditionalAndExpression ||
+             parent instanceof IRConditionalOrExpression  ||
+             parent instanceof IRNotExpression);
+
+  }
   protected static int negateOpcode( int op )
   {
     int ret = 0;
