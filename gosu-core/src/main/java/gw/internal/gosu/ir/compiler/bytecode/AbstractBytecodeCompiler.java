@@ -15,6 +15,8 @@ import gw.internal.ext.org.objectweb.asm.Opcodes;
 import gw.lang.ir.expression.IRConditionalAndExpression;
 import gw.lang.ir.expression.IRConditionalOrExpression;
 import gw.lang.ir.expression.IRNotExpression;
+import gw.lang.ir.statement.IRIfStatement;
+import gw.lang.ir.statement.IRWhileStatement;
 
 public class AbstractBytecodeCompiler {
 
@@ -116,6 +118,8 @@ public class AbstractBytecodeCompiler {
     IRElement parent = expression.getParent();
     return !(parent instanceof IRConditionalAndExpression ||
              parent instanceof IRConditionalOrExpression  ||
+             parent instanceof IRIfStatement ||
+             parent instanceof IRWhileStatement ||
              parent instanceof IRNotExpression);
 
   }
