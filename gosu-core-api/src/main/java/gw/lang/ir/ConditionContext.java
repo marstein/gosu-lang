@@ -22,15 +22,25 @@ public class ConditionContext
 
   public Label generateFalseLabel()
   {
-    Label label = new Label();
-    _falseList.add( label );
+    Label label;
+    if(_falseList.isEmpty()) {
+      label = new Label();
+      _falseList.add(label);
+    } else {
+      label = _falseList.get(0);
+    }
     return label;
   }
 
   public Label generateTrueLabel()
   {
-    Label label = new Label();
-    _trueList.add( label );
+    Label label;
+    if(_trueList.isEmpty()) {
+      label = new Label();
+      _trueList.add(label);
+    } else {
+      label = _trueList.get(0);
+    }
     return label;
   }
 
@@ -47,29 +57,13 @@ public class ConditionContext
 
   public void mergeLabels( boolean kind, ConditionContext context )
   {
-    List<Label> labels;
-    if(kind)
-    {
-      labels = _trueList;
-    }
-    else
-    {
-      labels = _falseList;
-    }
+    List<Label> labels = getLabels(kind);
     labels.addAll( context.getLabels( kind ) );
   }
 
   public void fixLabels(boolean kind, MethodVisitor mv)
   {
-    List<Label> labels;
-    if(kind)
-    {
-      labels = _trueList;
-    }
-    else
-    {
-      labels = _falseList;
-    }
+    List<Label> labels = getLabels(kind);
     for(Label l : labels)
     {
       mv.visitLabel( l );
