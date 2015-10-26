@@ -17,6 +17,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,22 @@ public class DirectoryWatcher {
     }
   }
 
+  /**
+   * Close the watch service. Should release resources.
+   */
+  public void stopWatching() {
+    try {
+      _watchService.close();
+      _watchedDirectories = Collections.emptyMap();
+    } catch (IOException e) {
+      throw new RuntimeException("Could not stop watching directories!", e);
+    }
+  }
+
+  /**
+   * Walk the directories under given path, and register a watcher for every directory.
+   * @param dir the starting point under which to listen for changes, if it doesn't exist, do nothing.
+   */
   public void watchDirectoryTree(Path dir) {
     try {
       if (Files.exists(dir)) {
